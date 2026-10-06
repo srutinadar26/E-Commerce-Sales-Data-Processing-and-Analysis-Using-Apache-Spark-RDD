@@ -1,0 +1,7 @@
+payment_method,transaction_count,total_revenue,avg_transaction_value
+Cash on Delivery,2449,470234.38,192.01
+Credit Card,2384,422048.87,177.03
+Debit Card,2400,465267.17,193.86
+Net Banking,2481,450002.31,181.38
+PayPal,2455,441387.63,179.79
+UPI,2431,431151.1,177.36

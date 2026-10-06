@@ -1,0 +1,49 @@
+# ============================================================
+# E-Commerce Spark RDD Project - Configuration File
+# ============================================================
+
+app:
+  name: "ECommerce-Spark-RDD"
+  version: "1.0.0"
+  log_level: "INFO"
+  # Note: Requires PySpark 4.0+ for Python 3.13 compatibility
+
+spark:
+  master: "local[*]"
+  app_name: "ECommerce_Sales_Analysis"
+  driver_memory: "2g"
+  executor_memory: "2g"
+  log_level: "WARN"
+
+paths:
+  raw_data: "data/raw/ecommerce_sales.csv"
+  output_dir: "data/output"
+  logs_dir: "logs"
+  reports_dir: "reports"
+
+output_files:
+  total_revenue: "total_revenue.csv"
+  revenue_by_category: "revenue_by_category.csv"
+  top_products: "top_10_products.csv"
+  top_customers: "top_customers.csv"
+  revenue_by_city: "revenue_by_city.csv"
+  revenue_by_state: "revenue_by_state.csv"
+  payment_analysis: "payment_method_analysis.csv"
+  order_status_analysis: "order_status_analysis.csv"
+  monthly_revenue: "monthly_revenue.csv"
+  quantity_by_product: "quantity_by_product.csv"
+  summary_stats: "summary_statistics.csv"
+  cleaned_data: "cleaned_data.csv"
+
+data_generation:
+  num_records: 15000
+  start_date: "2023-01-01"
+  end_date: "2024-12-31"
+  missing_rate: 0.02       # 2% missing values
+  duplicate_rate: 0.01     # 1% duplicate rows
+  invalid_rate: 0.015      # 1.5% invalid values
+
+analytics:
+  top_products_n: 10
+  top_customers_n: 10
+  top_cities_n: 20
