@@ -1,104 +1,118 @@
-# 📦 E-Commerce Sales Data Processing and Analysis
-## Using Apache Spark RDD · Python · PySpark · DummyJSON API
+<div align="center">
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
-![PySpark](https://img.shields.io/badge/PySpark-4.2-orange?logo=apache-spark)
-![Tests](https://img.shields.io/badge/Tests-37%20passed-brightgreen?logo=pytest)
-![License](https://img.shields.io/badge/License-MIT-green)
+# 📦 E-Commerce Sales Data Processing & Analysis
+
+### Apache Spark RDD · Python · PySpark · DummyJSON API
+
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?logo=python&logoColor=white)
+![PySpark](https://img.shields.io/badge/PySpark-3.5-E25A1C?logo=apachespark&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-37%20passing-brightgreen)
+
+*An end-to-end data engineering pipeline: API → CSV → Cleaning → RDD Analytics → Visualisation*
+
+</div>
+
+---
+
+## 👥 Group Members
+
+| Sr. No. | Name            | PRN        |
+|:-------:|-----------------|:----------:|
+| 1       | Kamaal          | 124A8049   |
+| 2       | Nadar Lukshana  | 124A8065   |
+| 3       | Nadar Sruti     | 124A8068   |
+| 4       | Ved Mhatre      | 124A8054   |
+| 5       | Aarif           | 124A8055   |
 
 ---
 
 ## 🗂 Table of Contents
-1. [Project Overview](#project-overview)
-2. [Architecture](#architecture)
-3. [Project Structure](#project-structure)
-4. [Dataset Description](#dataset-description)
-5. [API Ingestion (DummyJSON)](#api-ingestion-dummyjson)
-6. [RDD Operations Demonstrated](#rdd-operations-demonstrated)
-7. [Analytics & Results](#analytics--results)
-8. [Installation](#installation)
-9. [Running the Project](#running-the-project)
-10. [Running Tests](#running-tests)
-11. [Spark Web UI](#spark-web-ui)
-12. [Streamlit Dashboard](#streamlit-dashboard)
-13. [Output Files](#output-files)
-14. [Troubleshooting](#troubleshooting)
-15. [Future Scope](#future-scope)
+
+1. [Project Overview](#-project-overview)
+2. [Architecture](#-architecture)
+3. [Project Structure](#-project-structure)
+4. [Dataset Description](#-dataset-description)
+5. [API Ingestion](#-api-ingestion-dummyjson)
+6. [RDD Operations](#-rdd-operations-demonstrated)
+7. [Analytics & Outputs](#-analytics--outputs)
+8. [Installation](#-installation)
+9. [Running the Project](#-running-the-project)
+10. [Running Tests](#-running-tests)
+11. [Spark Web UI](#-spark-web-ui)
+12. [Troubleshooting](#-troubleshooting)
+13. [Future Scope](#-future-scope)
 
 ---
 
-## Project Overview
+## 🎯 Project Overview
 
-This project is a **production-ready Data Engineering pipeline** that processes a realistic e-commerce sales dataset using **Apache Spark RDDs** (Resilient Distributed Datasets). It ingests real product data from the **DummyJSON REST API**, generates synthetic transactions around them, cleans the data using RDD operations, applies 13 distinct RDD transformations and actions, and outputs charts + analytics reports.
+A Data Engineering pipeline that processes a realistic e-commerce sales dataset using **Apache Spark RDDs (Resilient Distributed Datasets)**. It ingests real product data from the **DummyJSON REST API**, generates synthetic transactions around it, cleans the data with RDD operations, runs analytics, and produces CSV reports and charts.
 
-### Key Goals
-- Demonstrate all fundamental Spark RDD operations on real-world data
+### ✨ Key Goals
+
+- Demonstrate the fundamental Spark RDD operations on real-world data
 - Integrate a live public API (DummyJSON) as a data source
-- Build a complete ETL pipeline: API → CSV generation → cleaning → analytics → visualisation
-- Show best practices: logging, config-driven settings, pytest, error handling
+- Build a complete ETL pipeline: **API → CSV → Cleaning → Analytics → Visualisation**
+- Follow good practices: logging, config-driven settings, pytest, error handling
 
-### What does it do?
-1. **Ingests** ~100 real products from the DummyJSON API and wraps them in 2,000 synthetic transaction records
-2. **Generates** a further 15,000 synthetic CSV records to supplement the API data
-3. **Cleans** the raw data using RDD `map()` / `filter()` — dropping invalid rows, deduplicating
-4. **Analyses** the cleaned data with 13 Spark RDD operations
-5. **Saves** results as CSVs in `data/output/`
-6. **Visualises** key metrics as PNG charts via Matplotlib
+### ⚙️ What It Does
+
+| Step | Description |
+|:----:|-------------|
+| 1 | Ingests ~100 real products from DummyJSON and wraps them in **2,000** synthetic transactions |
+| 2 | Generates a further **15,000** synthetic CSV records |
+| 3 | Cleans raw data with RDD `map()` / `filter()` — drops invalid rows, removes duplicates |
+| 4 | Analyses the cleaned data with Spark RDD operations |
+| 5 | Saves results as CSVs in `data/output/` |
+| 6 | Visualises key metrics as PNG charts using Matplotlib |
 
 ---
 
-
-## Architecture
+## 🏗 Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                     Data Sources                                │
+│                         Data Sources                            │
 │  ┌──────────────────────┐    ┌───────────────────────────────┐  │
 │  │  DummyJSON REST API  │    │  Synthetic CSV Generator      │  │
-│  │  (100 real products) │    │  (~15 000 transactions)       │  │
+│  │  (100 real products) │    │  (~15,000 transactions)       │  │
 │  └──────────┬───────────┘    └──────────────┬────────────────┘  │
-│             └──────────┬────────────────────┘                   │
-│                        ▼                                        │
-│               data/raw/*.csv                                    │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────────┐
-│                  PySpark RDD Pipeline                           │
+│             └──────────────┬────────────────┘                   │
+│                            ▼                                    │
+│                     data/raw/*.csv                              │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────────┐
+│                      PySpark RDD Pipeline                       │
 │                                                                 │
-│  sc.textFile()  →  map(parse_row)  →  filter(is_valid)         │
-│       →  distinct()  →  persist()                               │
+│  textFile() → map(parse_row) → filter(is_valid)                 │
+│            → distinct() → cache()                               │
 │                                                                 │
-│  Analytics:                                                     │
-│   reduceByKey()  groupByKey()   sortByKey()                     │
-│   flatMap()      union()        map()                           │
-│   filter()       count()        take() first() distinct()       │
-└────────────────────────┬────────────────────────────────────────┘
-                         │
-┌────────────────────────▼────────────────────────────────────────┐
-│                    Outputs                                      │
-│  data/output/*.csv   data/output/*.png   reports/*.md           │
+│  Analytics: reduceByKey · groupByKey · sortByKey · flatMap      │
+│             union · map · filter · count · take · first         │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+┌────────────────────────────▼────────────────────────────────────┐
+│                           Outputs                               │
+│     data/output/*.csv    data/output/*.png    reports/*.md      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-
 ---
 
-
-
-## Project Structure
+## 📁 Project Structure
 
 ```
 E-commerce Spark RDD/
 ├── config/
-│   └── config.yaml               # All tunable settings
+│   └── config.yaml                # All tunable settings
 ├── data/
 │   ├── raw/
 │   │   ├── ecommerce_sales.csv        # Synthetic 15k-row dataset
 │   │   └── ecommerce_sales_api.csv    # API-ingested 2k-row dataset
-│   └── output/                        # Generated by pipeline
+│   └── output/                        # Generated by the pipeline
 ├── notebooks/
 │   └── exploration.ipynb
-├── dashboard.py                   # Interactive Streamlit dashboard
 ├── reports/
 │   └── analysis_report.md
 ├── scripts/
@@ -108,304 +122,258 @@ E-commerce Spark RDD/
 │   ├── api_ingestion.py           # DummyJSON API → CSV
 │   ├── data_cleaner.py            # RDD-based cleaning
 │   ├── mock_spark.py              # Pure-Python RDD emulation (Windows fallback)
-│   ├── rdd_analytics.py           # All 13 RDD operations
+│   ├── rdd_analytics.py           # All RDD analytics operations
 │   ├── spark_session.py           # SparkSession factory
 │   ├── visualizer.py              # Matplotlib charts
-│   └── utils/logger.py            # Structured logging
+│   └── utils/
+│       └── logger.py              # Structured logging
 ├── tests/
 │   ├── test_analytics.py          # 12 RDD operation tests
 │   ├── test_api_ingestion.py      # 5 API ingestion tests
 │   └── test_data_cleaning.py      # 20 data cleaning tests
+├── dashboard.py                   # Interactive Streamlit dashboard
 ├── run.ps1                        # Windows one-command runner
 ├── requirements.txt
 └── README.md
 ```
-│   └── utils/
-│       ├── __init__.py
-│       └── logger.py            # Centralised logging
-├── tests/
-│   ├── __init__.py
-│   ├── conftest.py
-│   ├── test_data_cleaning.py    # 14 unit tests
-│   └── test_analytics.py        # Integration tests (Spark)
-├── conftest.py
-├── requirements.txt
-└── README.md
-
 
 ---
 
-## API Ingestion (DummyJSON)
+## 🗃 Dataset Description
 
-`src/api_ingestion.py` fetches real products from the free [DummyJSON API](https://dummyjson.com/products) and maps them to the project schema:
+The generated dataset `data/raw/ecommerce_sales.csv` contains **~15,000 rows** and **14 columns**:
+
+| Column | Type | Description | Example |
+|--------|------|-------------|---------|
+| `transaction_id` | string | Unique transaction identifier | `TXN0000001` |
+| `date` | date | Transaction date (2023–2024) | `2024-03-15` |
+| `customer_id` | string | Anonymised customer ID (3,000 unique) | `CUST00042` |
+| `product_id` | string | Product identifier | `PROD12345` |
+| `product_name` | string | Full product name | `Laptop Pro 15` |
+| `category` | string | Product category (8 categories) | `Electronics` |
+| `quantity` | integer | Units purchased (1–5) | `2` |
+| `unit_price` | float | Price per unit (USD) | `1299.99` |
+| `discount` | float | Discount fraction (0.0–0.30) | `0.10` |
+| `payment_method` | string | Payment method (6 types) | `Credit Card` |
+| `city` | string | Customer city (30 cities) | `New York` |
+| `state` | string | Customer state | `New York` |
+| `order_status` | string | Order lifecycle status (5 statuses) | `Delivered` |
+| `rating` | float | Customer rating (1.0–5.0) | `4.5` |
+
+> **🧪 Intentional data-quality issues** (for cleaning demonstrations)
+> - ~2% missing values in nullable fields (`rating`, `payment_method`, `city`)
+> - ~1% exact duplicate rows
+> - ~1.5% invalid values (negative prices, out-of-range ratings, zero quantity)
+
+---
+
+## 🌐 API Ingestion (DummyJSON)
+
+`src/api_ingestion.py` fetches real products from the free DummyJSON API and maps them to the project schema.
 
 ```python
 from src.api_ingestion import run_api_ingestion
+
 run_api_ingestion("data/raw/ecommerce_sales_api.csv", num_records=2000)
 ```
 
-**Flow:**
-1. `GET https://dummyjson.com/products?limit=100` — 100 real products
-2. Maps `title→product_name`, `category→category`, `price→unit_price`, `rating→rating`
-3. Generates realistic transactional wrappers (dates, customer IDs, quantities, cities)
-4. Injects ~2–5% anomalies (negative prices, missing categories)
-5. Writes CSV matching the project schema exactly
+**Flow**
 
-The pipeline **automatically falls back** to the synthetic CSV if the API is unreachable.
+1. `GET https://dummyjson.com/products?limit=100` — fetch 100 real products
+2. Map fields: `title → product_name`, `category → category`, `price → unit_price`, `rating → rating`
+3. Generate realistic transaction wrappers (dates, customer IDs, quantities, cities)
+4. Inject ~2–5% anomalies (negative prices, missing categories)
+5. Write a CSV that matches the project schema exactly
 
----
-
-
-
-The generated dataset (`data/raw/ecommerce_sales.csv`) contains **~15,000 rows** with **14 columns**:
-
-| Column           | Type    | Description                            | Example               |
-|------------------|---------|----------------------------------------|-----------------------|
-| `transaction_id` | string  | Unique transaction identifier          | `TXN0000001`          |
-| `date`           | date    | Transaction date (2023–2024)           | `2024-03-15`          |
-| `customer_id`    | string  | Anonymised customer ID (3,000 unique)  | `CUST00042`           |
-| `product_id`     | string  | Product identifier                     | `PROD12345`           |
-| `product_name`   | string  | Full product name                      | `Laptop Pro 15`       |
-| `category`       | string  | Product category (8 categories)        | `Electronics`         |
-| `quantity`       | integer | Units purchased (1–5)                  | `2`                   |
-| `unit_price`     | float   | Price per unit (USD)                   | `1299.99`             |
-| `discount`       | float   | Discount fraction (0.0–0.30)           | `0.10`                |
-| `payment_method` | string  | Payment method (6 types)               | `Credit Card`         |
-| `city`           | string  | Customer city (30 cities)              | `New York`            |
-| `state`          | string  | Customer state                         | `New York`            |
-| `order_status`   | string  | Order lifecycle status (5 statuses)    | `Delivered`           |
-| `rating`         | float   | Customer rating (1.0–5.0)             | `4.5`                 |
-
-**Intentional data quality issues** introduced for cleaning demonstrations:
-- ~2% **missing values** in nullable fields (rating, payment_method, city)
-- ~1% **exact duplicate rows**
-- ~1.5% **invalid values** (negative prices, out-of-range ratings, zero quantity)
+> The pipeline automatically **falls back to the synthetic CSV** if the API is unreachable.
 
 ---
 
-## RDD Operations Demonstrated
+## ⚡ RDD Operations Demonstrated
 
-| Operation         | Location                    | Business Use Case                          |
-|-------------------|-----------------------------|--------------------------------------------|
-| `map()`           | `data_cleaner.py`, `rdd_analytics.py` | Parse rows; extract (key, value) pairs |
-| `filter()`        | `data_cleaner.py`, `rdd_analytics.py` | Remove invalid rows; subset by status  |
-| `flatMap()`       | `rdd_analytics.py`          | Emit revenue + count per record (monthly)  |
-| `distinct()`      | `data_cleaner.py`, `rdd_analytics.py` | Deduplicate rows; count unique products |
-| `union()`         | `rdd_analytics.py`          | Merge completed vs. pending order RDDs     |
-| `groupByKey()`    | `rdd_analytics.py`          | Group transactions by payment method       |
-| `reduceByKey()`   | `rdd_analytics.py`          | Sum revenue per category / city / state    |
-| `sortByKey()`     | `rdd_analytics.py`          | Rank products / customers by revenue       |
-| `count()`         | `data_cleaner.py`, tests    | Total transaction count                    |
-| `collect()`       | `rdd_analytics.py`          | Pull analytics results to driver           |
-| `first()`         | `rdd_analytics.py`          | Inspect first record (sanity check)        |
-| `take()`          | `rdd_analytics.py`          | Get Top-10 products                        |
-| `reduce()`        | `rdd_analytics.py`          | Compute total revenue                      |
-| `cache()`         | `data_cleaner.py`           | Materialise cleaned RDD for reuse          |
-
----
-
-## Analytics & Results
-
-The pipeline computes and saves the following:
-
-| # | Analysis                  | Output File                     | Key Insight                            |
-|---|---------------------------|---------------------------------|----------------------------------------|
-| 1 | Summary Statistics         | `summary_statistics.csv`        | Total revenue, AOV, unique customers   |
-| 2 | Revenue by Category        | `revenue_by_category.csv`       | Which category generates most revenue  |
-| 3 | Top 10 Products            | `top_10_products.csv`           | Best-selling products by revenue       |
-| 4 | Top Customers              | `top_customers.csv`             | High-value customer identification     |
-| 5 | Revenue by City            | `revenue_by_city.csv`           | Geographic revenue distribution        |
-| 6 | Revenue by State           | `revenue_by_state.csv`          | State-level performance                |
-| 7 | Payment Method Analysis    | `payment_method_analysis.csv`   | Popular payment methods + AOV          |
-| 8 | Order Status Analysis      | `order_status_analysis.csv`     | Fulfilment rate, cancellations         |
-| 9 | Monthly Revenue            | `monthly_revenue.csv`           | Seasonality and trends                 |
-|10 | Quantity by Product        | `quantity_by_product.csv`       | Volume-based product ranking           |
-|11 | Cleaned Dataset            | `cleaned_data.csv`              | Final clean + enriched dataset         |
+| Operation | Location | Business Use Case |
+|-----------|----------|-------------------|
+| `map()` | `data_cleaner.py`, `rdd_analytics.py` | Parse rows; extract `(key, value)` pairs |
+| `filter()` | `data_cleaner.py`, `rdd_analytics.py` | Remove invalid rows; subset by status |
+| `flatMap()` | `rdd_analytics.py` | Emit revenue + count per record (monthly) |
+| `distinct()` | `data_cleaner.py`, `rdd_analytics.py` | Deduplicate rows; count unique products |
+| `union()` | `rdd_analytics.py` | Merge completed vs. pending order RDDs |
+| `groupByKey()` | `rdd_analytics.py` | Group transactions by payment method |
+| `reduceByKey()` | `rdd_analytics.py` | Sum revenue per category / city / state |
+| `sortByKey()` | `rdd_analytics.py` | Rank products / customers by revenue |
+| `count()` | `data_cleaner.py`, tests | Total transaction count |
+| `collect()` | `rdd_analytics.py` | Pull analytics results to the driver |
+| `first()` | `rdd_analytics.py` | Inspect first record (sanity check) |
+| `take()` | `rdd_analytics.py` | Get Top-10 products |
+| `reduce()` | `rdd_analytics.py` | Compute total revenue |
+| `cache()` | `data_cleaner.py` | Materialise cleaned RDD for reuse |
 
 ---
 
-## Installation
+## 📊 Analytics & Outputs
+
+| # | Analysis | Output File | Key Insight |
+|:-:|----------|-------------|-------------|
+| 1 | Summary Statistics | `summary_statistics.csv` | Total revenue, AOV, unique customers |
+| 2 | Revenue by Category | `revenue_by_category.csv` | Highest-earning categories |
+| 3 | Top 10 Products | `top_10_products.csv` | Best sellers by revenue |
+| 4 | Top Customers | `top_customers.csv` | High-value customer identification |
+| 5 | Revenue by City | `revenue_by_city.csv` | Geographic revenue distribution |
+| 6 | Revenue by State | `revenue_by_state.csv` | State-level performance |
+| 7 | Payment Methods | `payment_method_analysis.csv` | Popular methods + AOV |
+| 8 | Order Status | `order_status_analysis.csv` | Fulfilment rate, cancellations |
+| 9 | Monthly Revenue | `monthly_revenue.csv` | Seasonality and trends |
+| 10 | Quantity by Product | `quantity_by_product.csv` | Volume-based product ranking |
+| 11 | Cleaned Dataset | `cleaned_data.csv` | Final clean + enriched dataset |
+
+### 📈 Charts
+
+| Chart | File | Type |
+|-------|------|------|
+| Revenue by Category | `chart_revenue_by_category.png` | Horizontal bar |
+| Top 10 Products | `chart_top_10_products.png` | Vertical bar |
+| Monthly Revenue | `chart_monthly_revenue.png` | Dual-axis line + bar |
+| Payment Analysis | `chart_payment_analysis.png` | Pie + bar |
+| Order Status | `chart_order_status.png` | Donut |
+| Top States | `chart_top_states.png` | Horizontal bar |
+
+---
+
+## 🛠 Installation
 
 ### Prerequisites
-- Python 3.10+
-- Java 8 or 11 (required by Spark) — set `JAVA_HOME`
-- pip
+
+- Python **3.10+**
+- Java **8 or 11** (required by Spark) with `JAVA_HOME` set
+- `pip`
 
 ### Steps
 
-```powershell
-# 1. Clone or extract the project
+```bash
+# 1. Go to the project folder
 cd "E-commerce Spark RDD"
 
 # 2. Create a virtual environment (recommended)
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\activate          # Windows
+# source .venv/bin/activate     # macOS / Linux
 
 # 3. Install dependencies
 pip install -r requirements.txt
 
-# 4. Verify Java is available
+# 4. Verify Java
 java -version
 ```
 
-> **Windows tip:** If you see `winutils.exe` errors, set the environment variable:
-> `$env:HADOOP_HOME = "C:\hadoop"` and place `winutils.exe` in `C:\hadoop\bin`.
-> PySpark 3.5 on Windows works fine without it for most use cases.
+> 💡 **Windows tip:** if you see `winutils.exe` errors, set `$env:HADOOP_HOME = "C:\hadoop"` and place `winutils.exe` in `C:\hadoop\bin`.
 
 ---
 
-## Running the Project
+## ▶️ Running the Project
 
-### Full Pipeline (recommended)
-```powershell
-python scripts/run_pipeline.py
-```
-This runs: data generation → cleaning → analytics → charts.
+**Full pipeline (recommended)** — data generation → cleaning → analytics → charts:
 
-### Individual Steps
-```powershell
-# 1. Generate dataset only
-python scripts/generate_data.py
-
-# 2. Run pipeline (uses existing dataset)
+```bash
 python scripts/run_pipeline.py
 ```
 
-### Jupyter Notebook
-```powershell
-jupyter notebook notebooks/ECommerce_RDD_Demo.ipynb
+**Individual steps**
+
+```bash
+python scripts/generate_data.py      # Generate the dataset only
+python scripts/run_pipeline.py       # Run pipeline on the existing dataset
+```
+
+**Streamlit dashboard**
+
+```bash
+streamlit run dashboard.py
+```
+
+**Jupyter notebook**
+
+```bash
+jupyter notebook notebooks/exploration.ipynb
 ```
 
 ---
 
-## Running Tests
+## ✅ Running Tests
 
-```powershell
-# All tests with verbose output
-pytest tests/ -v
-
-# With coverage report
-pytest tests/ -v --cov=src --cov-report=term-missing
-
-# Data cleaning tests only (no Spark needed)
-pytest tests/test_data_cleaning.py -v
-
-# Analytics tests (spins up local Spark)
-pytest tests/test_analytics.py -v
+```bash
+pytest tests/ -v                                          # All tests
+pytest tests/ -v --cov=src --cov-report=term-missing      # With coverage
+pytest tests/test_data_cleaning.py -v                     # Cleaning tests (no Spark needed)
+pytest tests/test_analytics.py -v                         # Analytics tests (local Spark)
 ```
 
-Expected output: **37 tests, all passing in < 1 second**.
+**Expected result**
 
 ```
-tests/test_analytics.py       12 passed   (all 13 RDD operations)
-tests/test_api_ingestion.py    5 passed   (fetch, errors, CSV schema, end-to-end)
-tests/test_data_cleaning.py   20 passed   (parse, validate, revenue)
-─────────────────────────────────────────────
-                              37 passed  in 0.46s
+tests/test_analytics.py        12 passed   (RDD operations)
+tests/test_api_ingestion.py     5 passed   (fetch, errors, CSV schema, end-to-end)
+tests/test_data_cleaning.py    20 passed   (parse, validate, revenue)
+──────────────────────────────────────────
+                               37 passed in 0.46s
 ```
 
 ---
 
-## Output Files
+## 🖥 Spark Web UI
 
-After running the pipeline, `data/output/` contains:
+The Spark Web UI at **http://localhost:4040** is available on **Python ≤ 3.11**. On Python 3.13 (Windows) the pipeline uses the `MockSparkSession` fallback, so the UI is not active.
 
-```
-data/output/
-├── cleaned_data.csv
-├── summary_statistics.csv
-├── revenue_by_category.csv
-├── top_10_products.csv
-├── top_customers.csv
-├── revenue_by_city.csv
-├── revenue_by_state.csv
-├── payment_method_analysis.csv
-├── order_status_analysis.csv
-├── monthly_revenue.csv
-├── quantity_by_product.csv
-├── chart_revenue_by_category.png
-├── chart_top_10_products.png
-├── chart_monthly_revenue.png
-├── chart_payment_analysis.png
-├── chart_order_status.png
-└── chart_top_states.png
-```
+**To capture the Web UI:**
+
+1. Install Python 3.11 — `winget install Python.Python.3.11`
+2. Re-create the venv — `py -3.11 -m venv .venv_311 && .venv_311\Scripts\activate`
+3. Install dependencies — `pip install -r requirements.txt`
+4. Run the pipeline — `.\run.ps1`
+5. While it runs, open `http://localhost:4040` and view the **Stages**, **Storage** and **Environment** tabs
+
+The UI shows DAG visualisations, task timing, parallelism, memory usage for cached RDDs, and Spark configuration.
 
 ---
 
-## Charts
+## 🧰 Troubleshooting
 
-Six PNG charts are generated automatically:
+<details>
+<summary><b>WinError 10038 / Python 3.13 (Windows)</b></summary>
 
-| Chart | File | Description |
-|-------|------|-------------|
-| Revenue by Category | `chart_revenue_by_category.png` | Horizontal bar chart |
-| Top 10 Products | `chart_top_10_products.png` | Vertical bar chart |
-| Monthly Revenue | `chart_monthly_revenue.png` | Dual-axis line + bar |
-| Payment Analysis | `chart_payment_analysis.png` | Pie + bar side-by-side |
-| Order Status | `chart_order_status.png` | Donut chart |
-| Top States | `chart_top_states.png` | Horizontal bar chart |
+Python 3.13 changed how socket handles are inherited by child processes, breaking PySpark's worker daemon on Windows. The project auto-detects this and switches to `MockSparkSession` (`src/mock_spark.py`), so the full pipeline and all 37 tests still run. Use Python 3.11 if you need the live Spark Web UI.
+</details>
 
----
+<details>
+<summary><b>Java not found</b></summary>
 
-## Spark Web UI
-
-> **Note:** The Spark Web UI at `http://localhost:4040` is available when running with **Python ≤ 3.11**.
-> On Python 3.13 (Windows), the pipeline uses the `MockSparkSession` fallback and the UI is not active.
-
-To capture the Web UI for your case-study report:
-
-1. Install Python 3.11: `winget install Python.Python.3.11`
-2. Re-create venv: `py -3.11 -m venv .venv_311 && .venv_311\Scripts\activate`
-3. Install dependencies: `pip install -r requirements.txt`
-4. Run the pipeline: `.\run.ps1`
-5. While running, open `http://localhost:4040` in your browser
-6. Navigate to **Stages**, **Storage**, and **Environment** tabs
-
-The Web UI shows: DAG visualisations, task timing, parallelism, memory usage for `persist()`-ed RDDs, and Spark configuration.
-
----
-
-## Troubleshooting
-
-### WinError 10038 / Python 3.13 (Windows)
-Python 3.13 changed how socket handles are inherited by child processes, breaking PySpark's worker daemon on Windows.
-
-**This project auto-detects the issue** and uses `MockSparkSession` (pure-Python RDD emulation in `src/mock_spark.py`) so the full pipeline runs and **all 37 tests pass** on Python 3.13.
-
-- For the live Spark Web UI, use Python 3.11 (see [Spark Web UI](#spark-web-ui))
-- The mock supports all 13 required RDD operations
-
-### Java not found
 ```powershell
 winget install EclipseAdoptium.Temurin.21.JDK
-# Restart terminal, then:
+# Restart the terminal, then:
 .\run.ps1
 ```
+</details>
 
-### Missing winutils.exe
+<details>
+<summary><b>Missing winutils.exe</b></summary>
+
 ```powershell
 New-Item -ItemType Directory -Force C:\hadoop\bin
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/cdarlint/winutils/master/hadoop-3.3.5/bin/winutils.exe" -OutFile C:\hadoop\bin\winutils.exe
 ```
+</details>
 
 ---
 
-## Future Scope
+## 🚀 Future Scope
 
 | Enhancement | Description |
 |-------------|-------------|
-| **Spark DataFrames** | Port analytics to Spark SQL for comparison |
-| **Delta Lake** | Add ACID transactions and time-travel |
-| **Streaming** | Use Spark Structured Streaming for real-time ingestion |
-| **Machine Learning** | Customer segmentation (k-means), churn prediction |
-| **Dashboard** | Interactive Streamlit / Dash web dashboard |
-| **Scheduling** | Run with Apache Airflow or Windows Task Scheduler |
-| **Testing** | Property-based testing with Hypothesis |
-| **CI/CD** | GitHub Actions pipeline with pytest + coverage gate |
+| Spark DataFrames | Port analytics to Spark SQL for comparison |
+| Delta Lake | Add ACID transactions and time travel |
+| Streaming | Real-time ingestion with Structured Streaming |
+| Machine Learning | Customer segmentation (k-means), churn prediction |
+| Scheduling | Apache Airflow or Windows Task Scheduler |
+| Testing | Property-based testing with Hypothesis |
+| CI/CD | GitHub Actions with pytest + coverage gate |
 
 ---
-
-## License
-
-MIT © 2024
